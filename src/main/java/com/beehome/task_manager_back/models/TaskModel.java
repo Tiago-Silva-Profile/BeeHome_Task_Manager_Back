@@ -11,9 +11,9 @@ import java.util.UUID;
 public class TaskModel {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, unique = true, length = 36)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private UUID id;
 
     @Column(nullable = false)
     private String title;
@@ -36,19 +36,11 @@ public class TaskModel {
     @JoinColumn(name = "assigned_to", nullable = false)
     private UserModel assignedTo;
 
-    // Gera o UUID antes de persistir a entidade
-    @PrePersist
-    public void generateId() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
-
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

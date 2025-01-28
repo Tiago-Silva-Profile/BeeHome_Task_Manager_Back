@@ -9,7 +9,9 @@ import java.util.UUID;
 public class UserModel {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", columnDefinition = "UUID", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -20,19 +22,11 @@ public class UserModel {
     @Column(nullable = false)
     private String password; // Deve ser armazenada de forma segura (e.g., BCrypt)
 
-    // Gera o UUID antes de persistir a entidade
-    @PrePersist
-    public void generateId() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
-
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

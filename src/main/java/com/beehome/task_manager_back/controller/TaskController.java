@@ -15,10 +15,12 @@ import org.springframework.scheduling.config.Task;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/tasks")
+@RequestMapping("/api")
 public class TaskController {
 
     @Autowired
@@ -33,9 +35,16 @@ public class TaskController {
 
 //    @GetMapping("/tasks/filter?status={status}")
 //
-//    @GetMapping("/task/{id}")
-//
-//
+    @GetMapping("/task/{id}")
+    public ResponseEntity<Object> listTasksOne(@PathVariable(value="id") UUID id){
+        Optional<TaskModel> taskOne = taskRepository.findById(id);
+        if(taskOne.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(taskOne.get());
+    }
+
+
     @PostMapping("/task")
     public ResponseEntity<TaskModel> createTask(@RequestBody @Valid TaskDTO taskDTO, @RequestParam Long userId) {
         var taskModel = new TaskModel();
