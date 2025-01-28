@@ -2,10 +2,14 @@ package com.beehome.task_manager_back.controller;
 
 import com.beehome.task_manager_back.dto.TaskDTO;
 import com.beehome.task_manager_back.dto.TaskFilterDTO;
+import com.beehome.task_manager_back.enums.TaskStatus;
+import com.beehome.task_manager_back.exception.ResourceNotFoundException;
 import com.beehome.task_manager_back.models.TaskModel;
+import com.beehome.task_manager_back.models.UserModel;
 import com.beehome.task_manager_back.repository.TaskRepository;
 import com.beehome.task_manager_back.repository.UserRepository;
 import com.beehome.task_manager_back.services.TaskService;
+import com.beehome.task_manager_back.services.UserService;
 import jakarta.validation.Valid;
 import org.hibernate.query.Page;
 import org.springframework.beans.BeanUtils;
@@ -23,7 +27,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/task")
 public class TaskController {
 
     @Autowired
@@ -35,55 +39,36 @@ public class TaskController {
     @Autowired
     private UserRepository userRepository;
 
+    private UserService userService;
 
 
-    @GetMapping("/task")
+
+    @GetMapping("")
     public ResponseEntity<List<TaskFilterDTO>> listTasksAll() {
-        List<TaskModel> tasks = taskRepository.findAll();
-
-        // Mapeie as entidades para DTOs
-        List<TaskFilterDTO> taskAll = tasks.stream().map(task -> {
-            TaskFilterDTO dto = new TaskFilterDTO();
-            dto.setId(task.getId());
-            dto.setTitle(task.getTitle());
-            dto.setDescription(task.getDescription());
-            dto.setStatus(task.getStatus());
-            dto.setDeadline(task.getDeadline());
-            dto.setCreatedOn(task.getCreatedOn());
-            dto.setAssignedToUsername(task.getAssignedTo().getUsername()); // Extrai o nome do usuário
-            return dto;
-        }).toList();
+        // Chama o serviço para obter todas as tarefas
+        List<TaskFilterDTO> taskAll = taskService.getAllTasks();
 
         return ResponseEntity.status(HttpStatus.OK).body(taskAll);
     }
 
-
-//    @GetMapping("/tasks/filter?status={status}")
-//
-    @GetMapping("/task/{id}")
-    public ResponseEntity<Object> listTasksOne(@PathVariable(value="id") UUID id){
-        Optional<TaskModel> taskOne = taskRepository.findById(id);
-        if(taskOne.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> listTaskOne(@PathVariable(value = "id") UUID id) {
+        try {
+            TaskFilterDTO taskFilterDTO = taskService.getTaskById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(taskFilterDTO);
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
+    }
 
-        TaskModel task = taskOne.get();
-
-        // Mapear para DTO
-        TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
-        taskFilterDTO.setId(task.getId());
-        taskFilterDTO.setTitle(task.getTitle());
-        taskFilterDTO.setDescription(task.getDescription());
-        taskFilterDTO.setStatus(task.getStatus());
-        taskFilterDTO.setDeadline(task.getDeadline());
-        taskFilterDTO.setCreatedOn(task.getCreatedOn());
-        taskFilterDTO.setAssignedToUsername(task.getAssignedTo().getUsername()); // Apenas o nome do usuário
-
-        return ResponseEntity.status(HttpStatus.OK).body(taskFilterDTO);
+    @GetMapping("/filter/{status}")
+    public ResponseEntity<Object> listTasksOne(@PathVariable(value = "status") TaskStatus status) {
+        List<TaskFilterDTO> taskStatus = taskService.getTasksByStatus(status);
+        return ResponseEntity.status(HttpStatus.OK).body(taskStatus);
     }
 
 
-    @PostMapping("/task")
+    @PostMapping("")
     public ResponseEntity<TaskModel> createTask(@RequestBody @Valid TaskDTO taskDTO, @RequestParam UUID userId) {
 
         // Busca o usuário no banco de dados
@@ -99,13 +84,25 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskRepository.save(taskModel));
     }
 
-//    @PutMapping("/task/{id}")
-//    public Task updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO, @RequestParam Long userId) {
-//        return taskService.updateTask(id, taskDTO, userId);
-//    }
-//
-//    @DeleteMapping("/task/{id}")
-//    public void deleteTask(@PathVariable Long id, @RequestParam Long userId) {
-//        taskService.deleteTask(id, userId);
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateTask(@PathVariable UUID id, @RequestBody @Valid TaskDTO taskDTO, @RequestParam UUID userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.updateTask(id, taskDTO, userId));
+    }
+
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID id, @RequestParam UUID userId) {
+        // Chama o serviço para deletar a tarefa
+        boolean isDeleted = taskService.deleteTask(id, userId);
+
+        if (isDeleted) {
+            // Se a tarefa for deletada com sucesso, retorna o status 204 (No Content)
+            return ResponseEntity.noContent().build();
+        } else {
+            // Se a tarefa não foi encontrada ou o usuário não tiver permissão, retorna 404 (Not Found)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 }
