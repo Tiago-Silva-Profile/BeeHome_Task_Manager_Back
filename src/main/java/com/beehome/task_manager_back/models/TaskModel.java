@@ -36,6 +36,11 @@ public class TaskModel {
     @JoinColumn(name = "assigned_to", nullable = false)
     private UserModel assignedTo;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdOn = new Date(); // Define a data e hora atual
+    }
+
     public UUID getId() {
         return id;
     }
