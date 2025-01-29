@@ -1,6 +1,8 @@
 package com.beehome.task_manager_back.models;
 
+import com.beehome.task_manager_back.dto.UserRegistrationDTO;
 import jakarta.persistence.*;
+import org.springframework.beans.BeanUtils;
 
 import java.util.UUID;
 
@@ -21,6 +23,10 @@ public class UserModel {
 
     @Column(nullable = false)
     private String password; // Deve ser armazenada de forma segura (e.g., BCrypt)
+
+    public UserModel(UserRegistrationDTO user) {
+        BeanUtils.copyProperties(user, this);
+    }
 
     public UUID getId() {
         return id;

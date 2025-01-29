@@ -12,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -27,10 +27,27 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/user")
-    public ResponseEntity<UserModel> createTask(@RequestBody @Valid UserRegistrationDTO userRegistrationDTO) {
-        var userModel = new UserModel();
-        BeanUtils.copyProperties(userRegistrationDTO, userModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.save(userModel));
+    @GetMapping
+    public List<UserRegistrationDTO> listarTodos(){
+        return userService.listarTodos();
     }
+
+    @PostMapping
+    public ResponseEntity<UserModel> createTask(@RequestBody @Valid UserRegistrationDTO userRegistrationDTO) {
+        userService.inserir(userRegistrationDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public UserRegistrationDTO alterar(@RequestBody UserRegistrationDTO usuario) {
+        return userService.alterar(usuario);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable("id") UUID id){
+        userService.excluir(id);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

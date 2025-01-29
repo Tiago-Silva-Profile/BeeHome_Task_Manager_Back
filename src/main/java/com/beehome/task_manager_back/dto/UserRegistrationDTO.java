@@ -1,10 +1,24 @@
 package com.beehome.task_manager_back.dto;
 
+import java.util.UUID;
+
 public class UserRegistrationDTO {
 
+    private UUID Id;
     private String username;
     private String email;
     private String password;
+
+    public UserRegistrationDTO(UUID id, String username, String email) {
+    }
+
+    public UUID getId() {
+        return Id;
+    }
+
+    public void setId(UUID id) {
+        Id = id;
+    }
 
     public String getUsername() {
         return username;
