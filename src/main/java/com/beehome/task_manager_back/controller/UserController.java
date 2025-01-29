@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserModel> createTask(@RequestBody @Valid UserRegistrationDTO userRegistrationDTO) {
+    public ResponseEntity<UserModel> createUser(@RequestBody @Valid UserRegistrationDTO userRegistrationDTO) {
         userService.inserir(userRegistrationDTO);
         return ResponseEntity.ok().build();
     }

@@ -33,6 +33,14 @@ public class JwtUtil {
         return key;
     }
 
+    public String getUsernameToken(String token){
+        return Jwts.parser().setSigningKey(getSigninKey())
+                .build()
+                .parseClaimsJwt(token)
+                .getBody()
+                .getSubject();
+    }
+
     public boolean validationJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(getSigninKey()).build().parseClaimsJws(authToken);

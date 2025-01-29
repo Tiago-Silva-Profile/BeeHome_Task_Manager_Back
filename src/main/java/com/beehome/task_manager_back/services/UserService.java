@@ -36,20 +36,23 @@ public class UserService {
     public void inserir(UserRegistrationDTO user) {
         UserModel userModel = new UserModel(user);
         userModel.setPassword(passwordEncoder.encode(user.getPassword()));
+        userModel.setEmail(user.getEmail());
+        userModel.setUsername(user.getUsername());
         ResponseEntity.status(HttpStatus.CREATED).body(userRepository.save(userModel));
 
     }
 
     public UserRegistrationDTO alterar(UserRegistrationDTO userDTO) {
-        UserModel usuario = userRepository.findById(userDTO.getId())
+        UserModel user = userRepository.findById(userDTO.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-        usuario.setUsername(userDTO.getUsername());
-        usuario.setEmail(userDTO.getEmail());
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
-        userRepository.save(usuario);
+        userRepository.save(user);
 
-        return convertToDTO(usuario);
+        return convertToDTO(user);
     }
 
     public void excluir(UUID id) {
@@ -65,17 +68,4 @@ public class UserService {
         );
     }
 
-//    public User registerUser(UserRegistrationDTO dto) {
-//        // Validações e criptografia de senha
-//        if (userRepository.existsByEmail(dto.getEmail())) {
-//            throw new IllegalArgumentException("E-mail já registrado");
-//        }
-//
-//        User user = new User();
-//        user.setUsername(dto.getUsername());
-//        user.setEmail(dto.getEmail());
-//        user.setPassword(new BCryptPasswordEncoder().encode(dto.getPassword()));
-//
-//        return userRepository.save(user);
-//    }
 }

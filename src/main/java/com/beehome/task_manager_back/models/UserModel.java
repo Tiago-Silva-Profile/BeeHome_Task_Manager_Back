@@ -22,7 +22,16 @@ public class UserModel {
     private String email;
 
     @Column(nullable = false)
-    private String password; // Deve ser armazenada de forma segura (e.g., BCrypt)
+    private String password;
+
+    public UserModel() {
+    }
+
+    public UserModel(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
     public UserModel(UserRegistrationDTO user) {
         BeanUtils.copyProperties(user, this);

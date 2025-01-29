@@ -1,5 +1,7 @@
 package com.beehome.task_manager_back.dto;
 
+import com.beehome.task_manager_back.models.UserModel;
+
 import java.util.UUID;
 
 public class UserRegistrationDTO {
@@ -9,8 +11,22 @@ public class UserRegistrationDTO {
     private String email;
     private String password;
 
-    public UserRegistrationDTO(UUID id, String username, String email) {
+    public UserRegistrationDTO() {
     }
+
+    public UserRegistrationDTO(UUID id, String username, String email) {
+        this.username = username;
+        this.email = email;
+        this.Id = id;
+
+    }
+
+    public UserRegistrationDTO(UserModel user) {
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+    }
+
 
     public UUID getId() {
         return Id;
