@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping
+    @PutMapping("/update")
     public UserRegistrationDTO alterar(@RequestBody UserRegistrationDTO usuario) {
         return userService.alterar(usuario);
     }
